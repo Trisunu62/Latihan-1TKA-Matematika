@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gim Kuis HOTS TKA Matematika SD (30 Soal)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-light {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .animate-pulse-light {
+      animation: pulse-light 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header Header -->
+  <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <span class="bg-indigo-600 text-white p-2 rounded-xl text-xl font-black shadow-lg shadow-indigo-500/30">🎯</span>
+        <div>
+          <h1 class="font-bold text-lg leading-tight text-white">TKA Matematika SD</h1>
+          <p class="text-xs text-slate-400">30 Soal HOTS Interaktif</p>
+        </div>
+      </div>
+      <div id="header-stats" class="hidden flex items-center space-x-4">
+        <div class="bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-600 text-sm">
+          <span class="text-slate-400 text-xs block">Pemain</span>
+          <span id="player-display" class="font-semibold text-indigo-300">-</span>
+        </div>
+        <div class="bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-600 text-sm">
+          <span class="text-slate-400 text-xs block">Skor</span>
+          <span id="score-display" class="font-bold text-amber-400">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+    <!-- SCREEN 1: Registrasi Player -->
+    <section id="screen-register" class="max-w-md w-full mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+      <div class="text-center space-y-2">
+        <span class="inline-block bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs px-3 py-1 rounded-full font-semibold">Latihan TKA Matematika SD</span>
+        <h2 class="text-2xl font-bold text-white">Selamat Datang!</h2>
+        <p class="text-sm text-slate-400">Masukkan identitasmu sebelum memulai kuis 30 soal HOTS.</p>
+      </div>
+
+      <form id="form-register" onsubmit="startGame(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+          <input type="text" id="input-name" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Kelas</label>
+            <select id="input-class" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-indigo-500 transition">
+              <option value="6">Kelas 6 SD</option>
+              <option value="5">Kelas 5 SD</option>
+              <option value="4">Kelas 4 SD</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">No. Absen</label>
+            <input type="number" id="input-absent" required min="1" max="50" placeholder="12" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 transform hover:-translate-y-0.5">
+          Mulai Kuis Now 🚀
+        </button>
+      </form>
+    </section>
+
+    <!-- SCREEN 2: Quiz Arena -->
+    <section id="screen-quiz" class="hidden space-y-6">
+      <!-- Progress Bar -->
+      <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl shadow-lg space-y-2">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-semibold">
+          <span>Progres Kuis: <strong id="progress-text" class="text-indigo-400">1 / 30</strong></span>
+          <span id="streak-badge" class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full">Streak: 0 🔥</span>
+        </div>
+        <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden border border-slate-700">
+          <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full w-0 transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+        <div>
+          <span id="q-category" class="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs px-3 py-1 rounded-full font-medium">Kategori Soal</span>
+          <h3 id="q-stimulus" class="text-lg md:text-xl font-medium text-slate-200 mt-3 leading-relaxed">
+            Stimulus soal akan muncul di sini...
+          </h3>
+        </div>
+
+        <!-- Answer Options Grid -->
+        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <!-- Options rendered dynamically -->
+        </div>
+
+        <!-- Feedback & Explanation Box -->
+        <div id="feedback-box" class="hidden p-4 rounded-xl border space-y-2">
+          <div id="feedback-title" class="font-bold text-base flex items-center space-x-2"></div>
+          <p id="feedback-explanation" class="text-sm text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center pt-2">
+          <button id="btn-prev" onclick="prevQuestion()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-600 transition">
+            ← Sebelumnya
+          </button>
+          <div class="ml-auto flex space-x-3">
+            <button id="btn-next" onclick="nextQuestion()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
+              Soal Selanjutnya →
+            </button>
+            <button id="btn-finish" onclick="finishQuiz()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
+              Selesaikan Kuis 🏁
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Result Dashboard -->
+    <section id="screen-result" class="hidden max-w-3xl w-full mx-auto space-y-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl text-center space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-3xl font-extrabold text-white">Hasil Akhir Kuis TKA</h2>
+          <p class="text-slate-400 text-sm">Berikut adalah pencapaian performamu!</p>
+        </div>
+
+        <!-- Score Ring / Box -->
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm mx-auto space-y-3">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Skor Akhir</span>
+          <div id="result-score" class="text-5xl font-black text-amber-400">0 / 100</div>
+          <div id="result-stars" class="text-2xl">⭐⭐⭐</div>
+          <p id="result-status" class="text-sm font-medium text-indigo-300"></p>
+        </div>
+
+        <!-- Summary Grid -->
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400 block">Benar</span>
+            <span id="summary-correct" class="text-xl font-bold text-emerald-400">0</span>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400 block">Salah</span>
+            <span id="summary-wrong" class="text-xl font-bold text-rose-400">0</span>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400 block">Akurasi</span>
+            <span id="summary-accuracy" class="text-xl font-bold text-indigo-400">0%</span>
+          </div>
+        </div>
+
+        <div class="flex justify-center space-x-3 pt-2">
+          <button onclick="toggleReview()" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold px-5 py-3 rounded-xl border border-slate-600 transition">
+            🔍 Pembahasan Soal
+          </button>
+          <button onclick="restartGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transition">
+            🔄 Coba Lagi
+          </button>
+        </div>
+      </div>
+
+      <!-- Review Section -->
+      <div id="review-container" class="hidden space-y-4">
+        <h3 class="text-xl font-bold text-white border-b border-slate-700 pb-2">Pembahasan Soal Lengkap</h3>
+        <div id="review-list" class="space-y-4">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // 30 SOAL HOTS TKA MATEMATIKA SD
+    const questionsData = [
+      {
+        id: 1,
+        category: "Aritmatika & Aljabar Dasar",
+        stimulus: "Satu warga menerima bantuan 24 kg beras, dan warga lainnya mendapat 20 kg beras. Berapa total kilogram beras yang diterima kedua warga tersebut?",
+        options: ["40 kg", "42 kg", "44 kg", "46 kg"],
+        correctIndex: 2,
+        explanation: "Penjumlahan sederhana: 24 + 20 = 44 kg beras."
+      },
+      {
+        id: 2,
+        category: "Pola Bilangan & Tabungan",
+        stimulus: "Siti menabung Rp2.000 pada hari pertama dan bertambah Rp1.000 setiap harinya. Budi menabung tetap Rp4.000 setiap hari. Pada hari ke berapa jumlah tabungan mereka tepat sama?",
+        options: ["Hari ke-4", "Hari ke-5", "Hari ke-6", "Hari ke-7"],
+        correctIndex: 1,
+        explanation: "Tabungan Siti: H1=2rb, H2=5rb, H3=9rb, H4=14rb, H5=20rb. Tabungan Budi: H1=4rb, H2=8rb, H3=12rb, H4=16rb, H5=20rb. Pada hari ke-5 total keduanya sama-sama Rp20.000."
+      },
+      {
+        id: 3,
+        category: "Pecahan & Pengukuran",
+        stimulus: "Pramuka memiliki 3 utas tali dengan panjang 3,5 meter, 4,25 meter, dan 3,75 meter. Jika tali tersebut disambung dengan simpul yang memakan total 0,5 meter, berapa panjang total tali sekarang?",
+        options: ["11,0 meter", "11,5 meter", "12,0 meter", "10,5 meter"],
+        correctIndex: 0,
+        explanation: "Panjang total = 3,5 + 4,25 + 3,75 - 0,5 = 11,5 - 0,5 = 11,0 meter."
+      },
+      {
+        id: 4,
+        category: "Geometri & Ubin",
+        stimulus: "Lantai kamar mandi berukuran 3 m x 2 m akan dipasangi ubin berukuran 20 cm x 20 cm. Jika 1 dus berisi 25 ubin, berapa dus ubin minimal yang harus dibeli?",
+        options: ["4 dus", "5 dus", "6 dus", "7 dus"],
+        correctIndex: 2,
+        explanation: "Luas lantai = 60.000 cm². Luas 1 ubin = 400 cm². Jumlah ubin = 60.000 / 400 = 150 ubin. Dus dibutuhkan = 150 / 25 = 6 dus."
+      },
+      {
+        id: 5,
+        category: "KPK & FPB",
+        stimulus: "Ibu memiliki 30 kue pastel dan 45 kue risoles. Ibu ingin membagikan kue ke dalam kantong plastik dengan jumlah pastel dan risoles yang sama di tiap kantong. Berapa kantong terbanyak yang dapat dibuat?",
+        options: ["5 kantong", "10 kantong", "15 kantong", "20 kantong"],
+        correctIndex: 2,
+        explanation: "Cari FPB dari 30 dan 45. Faktor 30: 1,2,3,5,6,10,15,30. Faktor 45: 1,3,5,9,15,45. FPB = 15 kantong."
+      },
+      {
+        id: 6,
+        category: "Geometri Kebun",
+        stimulus: "Pak Ahmad memiliki kebun persegi panjang berukuran 20 m x 10 m. Separuh kebun ditanami jagung, dan seperempatnya ditanami cabai. Berapa meter persegi sisa kebun yang belum ditanami?",
+        options: ["25 m²", "50 m²", "75 m²", "100 m²"],
+        correctIndex: 1,
+        explanation: "Luas total = 200 m². Jagung = 1/2 x 200 = 100 m². Cabai = 1/4 x 200 = 50 m². Sisa = 200 - (100 + 50) = 50 m²."
+      },
+      {
+        id: 7,
+        category: "Pola Batang Korek Api",
+        stimulus: "Susunan tingkat 1 menggunakan 3 batang korek api (segitiga). Tingkat 2 menggunakan 5 batang tambahan. Jika pola berlanjut (+2 tiap tingkat), berapa total batang korek api untuk membuat pola tingkat ke-10?",
+        options: ["19 batang", "21 batang", "23 batang", "25 batang"],
+        correctIndex: 1,
+        explanation: "Pola aritmatika: Un = a + (n-1)b => U10 = 3 + (10-1)2 = 3 + 18 = 21 batang."
+      },
+      {
+        id: 8,
+        category: "Sudut & Waktu",
+        stimulus: "Jam dinding menunjukkan pukul 08.15. Berapa sudut terkecil yang dibentuk oleh kedua jarum jam tersebut?",
+        options: ["150°", "157,5°", "160°", "165°"],
+        correctIndex: 1,
+        explanation: "Jarum pendek pada 8 + (15/60) = 8,25 jam -> 8,25 x 30° = 247,5°. Jarum panjang pada 15 menit -> 15 x 6° = 90°. Sudut = 247,5° - 90° = 157,5°."
+      },
+      {
+        id: 9,
+        category: "KPK Kelipatan",
+        stimulus: "Andi ronda setiap 4 hari sekali, sedangkan Budi ronda setiap 6 hari sekali. Jika mereka ronda bersama pada tanggal 14 Mei 2026, tanggal berapa mereka akan ronda bersama lagi berikutnya?",
+        options: ["24 Mei 2026", "26 Mei 2026", "28 Mei 2026", "30 Mei 2026"],
+        correctIndex: 1,
+        explanation: "KPK dari 4 dan 6 adalah 12 hari. Tanggal berikutnya = 14 + 12 = 26 Mei 2026."
+      },
+      {
+        id: 10,
+        category: "Aritmatika Sosial",
+        stimulus: "Budi membeli 3 buku tulis seharga Rp5.000 per buku dan 2 pensil seharga Rp3.000 per pensil. Jika ia membayar dengan dua lembar uang Rp20.000, berapa kembalian yang ia terima?",
+        options: ["Rp17.000", "Rp19.000", "Rp21.000", "Rp23.000"],
+        correctIndex: 1,
+        explanation: "Total belanja = (3 x 5.000) + (2 x 3.000) = 15.000 + 6.000 = Rp21.000. Uang dibayar = 2 x 20.000 = Rp40.000. Kembalian = 40.000 - 21.000 = Rp19.000."
+      },
+      {
+        id: 11,
+        category: "Pecahan Campuran",
+        stimulus: "Ibu membutuhkan 2 ½ kg tepung terigu untuk membuat kue. Di dapur hanya tersisa 1 ¾ kg. Berapa kilogram tepung terigu tambahan yang harus dibeli Ibu?",
+        options: ["½ kg", "¾ kg", "1 kg", "1 ¼ kg"],
+        correctIndex: 1,
+        explanation: "Kurang tepung = 2 ½ - 1 ¾ = 5/2 - 7/4 = 10/4 - 7/4 = 3/4 kg."
+      },
+      {
+        id: 12,
+        category: "Skala & Jarak Peta",
+        stimulus: "Jarak kota A dan B pada peta ber-skala 1 : 500.000 adalah 4 cm. Jika sebuah mobil melaju dengan kecepatan 50 km/jam, berapa menit waktu yang dibutuhkan?",
+        options: ["20 menit", "24 menit", "25,2 menit", "30 menit"],
+        correctIndex: 1,
+        explanation: "Jarak sebenarnya = 4 cm x 500.000 = 2.000.000 cm = 20 km. Waktu = 20 km / 50 km/jam = 0,4 jam = 0,4 x 60 menit = 24 menit."
+      },
+      {
+        id: 13,
+        category: "Debit Air",
+        stimulus: "Sebuah kolam renang berkapasitas 8.000 liter diisi menggunakan selang dengan debit 50 liter/menit. Berapa jam waktu yang dibutuhkan hingga kolam terisi penuh?",
+        options: ["2 jam", "2 jam 40 menit", "3 jam", "3 jam 20 menit"],
+        correctIndex: 1,
+        explanation: "Waktu = 8.000 / 50 = 160 menit. 160 menit = 2 jam 40 menit."
+      },
+      {
+        id: 14,
+        category: "Persentase Untung Rugi",
+        stimulus: "Seorang pedagang membeli 1 peti jeruk seharga Rp150.000. Jeruk tersebut dijual habis dengan total pendapatan Rp200.000. Berapa persentase keuntungan pedagang tersebut?",
+        options: ["25%", "30%", "33,3%", "40%"],
+        correctIndex: 2,
+        explanation: "Untung = 200.000 - 150.000 = 50.000. Persentase untung = (50.000 / 150.000) x 100% = 33,33%."
+      },
+      {
+        id: 15,
+        category: "Perbandingan Diskon Toko",
+        stimulus: "Baju seharga Rp100.000 di Toko A dapat diskon 20% + 10%. Di Toko B baju yang sama diskon langsung 30%. Manakah toko yang menawarkan harga lebih murah?",
+        options: ["Toko A lebih murah Rp2.000", "Toko B lebih murah Rp2.000", "Kedua toko harganya sama", "Toko A lebih murah Rp5.000"],
+        correctIndex: 1,
+        explanation: "Toko A: Diskon 1 (20%) -> Rp80.000, diskon 2 (10% dari 80rb) -> Rp72.000. Toko B: Diskon 30% -> Rp70.000. Toko B lebih murah Rp2.000."
+      },
+      {
+        id: 16,
+        category: "Sifat Dadu & Peluang",
+        stimulus: "Pada dadu standar 6 sisi, jumlah angka pada dua sisi yang saling berhadapan selalu sama dengan 7. Jika sisi atas dadu menunjukkan angka 1, berapa angka pada sisi bawah?",
+        options: ["4", "5", "6", "2"],
+        correctIndex: 2,
+        explanation: "Jumlah sisi berhadapan = 7. Jadi sisi bawah = 7 - 1 = 6."
+      },
+      {
+        id: 17,
+        category: "Volume Tangki Kubus",
+        stimulus: "Tangki minyak berbentuk kubus dengan panjang rusuk 1 meter berisi penuh minyak. Minyak dipindahkan ke dalam drum berkapasitas 348 liter. Berapa liter minyak yang tersisa?",
+        options: ["652 liter", "650 liter", "552 liter", "752 liter"],
+        correctIndex: 0,
+        explanation: "Volume kubus = 1m x 1m x 1m = 1 m³ = 1.000 liter. Sisa minyak = 1.000 - 348 = 652 liter."
+      },
+      {
+        id: 18,
+        category: "Kecepatan Rata-rata",
+        stimulus: "Ayah berkendara dari kota P ke Q sejauh 150 km. Berangkat pukul 07.00 dan tiba pukul 09.30. Berapa kecepatan rata-rata mobil Ayah?",
+        options: ["50 km/jam", "60 km/jam", "75 km/jam", "80 km/jam"],
+        correctIndex: 1,
+        explanation: "Waktu tempuh = 2,5 jam (07.00 - 09.30). Kecepatan = Jarak / Waktu = 150 km / 2,5 jam = 60 km/jam."
+      },
+      {
+        id: 19,
+        category: "Satuan Luas Hektar",
+        stimulus: "Pak Karta memiliki lahan perkebunan cokelat seluas 200.000 m². Berapa hektar (ha) luas perkebunan cokelat tersebut?",
+        options: ["2 ha", "20 ha", "200 ha", "2.000 ha"],
+        correctIndex: 1,
+        explanation: "1 Hektar = 10.000 m². Luas = 200.000 / 10.000 = 20 ha."
+      },
+      {
+        id: 20,
+        category: "Sifat Bangun Datar",
+        stimulus: "Bangun datar yang memiliki 4 sisi sama panjang, diagonal saling tegak lurus tetapi panjang diagonalnya tidak sama adalah...",
+        options: ["Persegi", "Jajargenjang", "Belah Ketupat", "Layang-layang"],
+        correctIndex: 2,
+        explanation: "Belah ketupat memiliki 4 sisi sama panjang & diagonal tegak lurus tidak sama panjang."
+      },
+      {
+        id: 21,
+        category: "Bilangan Bulat Suhu",
+        stimulus: "Suhu di dalam freezer es krim mula-mula -8°C. Ketika listrik padam selama 2 jam, suhu naik 3°C setiap 30 menit. Berapa suhu freezer sekarang?",
+        options: ["2°C", "4°C", "6°C", "8°C"],
+        correctIndex: 1,
+        explanation: "Listrik padam 2 jam = 4 x 30 menit. Kenaikan suhu = 4 x 3°C = 12°C. Suhu akhir = -8 + 12 = 4°C."
+      },
+      {
+        id: 22,
+        category: "Diagram Lingkaran",
+        stimulus: "Dalam ekstrakurikuler SD, Pramuka diikuti 40% siswa, Robotik 25%, dan sisanya Seni Musik. Jika total siswa 200 anak, berapa selisih siswa Pramuka dan Robotik?",
+        options: ["15 siswa", "20 siswa", "30 siswa", "50 siswa"],
+        correctIndex: 2,
+        explanation: "Selisih persentase = 40% - 25% = 15%. Selisih siswa = 15% x 200 = 30 siswa."
+      },
+      {
+        id: 23,
+        category: "Luas Lingkaran & Biaya",
+        stimulus: "Taman berbentuk lingkaran berdiameter 14 meter akan ditanami rumput sintetis. Biaya rumput Rp37.500 per m². Berapa total biaya penanaman rumput? (π = 22/7)",
+        options: ["Rp4.775.000", "Rp5.775.000", "Rp6.275.000", "Rp5.500.000"],
+        correctIndex: 1,
+        explanation: "Jari-jari r = 7 m. Luas = 22/7 x 7 x 7 = 154 m². Biaya = 154 x 37.500 = Rp5.775.000."
+      },
+      {
+        id: 24,
+        category: "Statistika Nilai Rata-Rata",
+        stimulus: "Nilai ujian 5 siswa: 7, 8, 9, 6, dan X. Jika nilai rata-rata kelima siswa tersebut adalah 7,6, berapa nilai X?",
+        options: ["6", "7", "8", "9"],
+        correctIndex: 2,
+        explanation: "Total nilai = 7,6 x 5 = 38. 7 + 8 + 9 + 6 = 30. Nilai X = 38 - 30 = 8."
+      },
+      {
+        id: 25,
+        category: "Volume Bangun Ruang Gabungan",
+        stimulus: "Tangki air terdiri dari tabung (r=1m, t=4m) dan kerucut di atasnya (r=1m, t=3m). Berapa total volume tangki tersebut dalam m³? (Gunakan π = 3,14)",
+        options: ["12,56 m³", "15,70 m³", "18,84 m³", "20,00 m³"],
+        correctIndex: 1,
+        explanation: "Vol Tabung = π x r² x t = 3,14 x 1 x 4 = 12,56 m³. Vol Kerucut = 1/3 x π x r² x t = 1/3 x 3,14 x 1 x 3 = 3,14 m³. Total = 12,56 + 3,14 = 15,70 m³."
+      },
+      {
+        id: 26,
+        category: "Statistika Gabungan",
+        stimulus: "Rata-rata nilai 10 siswa laki-laki adalah 75, sedangkan rata-rata 10 siswa perempuan adalah 85. Berapa rata-rata gabungan seluruh siswa?",
+        options: ["78,0", "80,0", "82,5", "85,0"],
+        correctIndex: 1,
+        explanation: "Rata-rata gabungan = ((10 x 75) + (10 x 85)) / 20 = (750 + 850) / 20 = 1600 / 20 = 80,0."
+      },
+      {
+        id: 27,
+        category: "Volume Prisma Segitiga",
+        stimulus: "Akuarium berbentuk prisma segitiga tegak dengan alas segitiga siku-siku (alas 60 cm, tinggi 80 cm) dan tinggi prisma 75 cm. Berapa liter kapasitas penuh akuarium tersebut?",
+        options: ["150 liter", "180 liter", "200 liter", "240 liter"],
+        correctIndex: 1,
+        explanation: "Luas alas segitiga = 1/2 x 60 x 80 = 2.400 cm². Volume = 2.400 x 75 = 180.000 cm³ = 180 liter."
+      },
+      {
+        id: 28,
+        category: "Persentase Kenaikan",
+        stimulus: "Penjualan sepeda di Toko Budi bulan Maret adalah 40 unit dan bulan April naik menjadi 50 unit. Berapa persentase kenaikan penjualan sepeda tersebut?",
+        options: ["20%", "25%", "30%", "40%"],
+        correctIndex: 1,
+        explanation: "Kenaikan = 50 - 40 = 10 unit. Persentase = (10 / 40) x 100% = 25%."
+      },
+      {
+        id: 29,
+        category: "Koordinat Kartesius",
+        stimulus: "Titik A(2, 3), B(8, 3), C(8, 9) adalah tiga titik sudut persegi ABCD. Berapakah koordinat titik D agar terbentuk persegi sempurna?",
+        options: ["D(2, 6)", "D(2, 9)", "D(3, 9)", "D(9, 2)"],
+        correctIndex: 1,
+        explanation: "Panjang sisi persegi = 8 - 2 = 6 unit. Titik D terletak sejajar sumbu X dengan A(2) dan sumbu Y dengan C(9) -> D(2, 9)."
+      },
+      {
+        id: 30,
+        category: "Sistem Aturan Skor Ujian",
+        stimulus: "Kompetisi matematika 30 soal: benar skor +4, salah -2, tidak dijawab 0. Budi menjawab 28 soal dan mendapat skor 100. Berapa soal yang dijawab BENAR oleh Budi?",
+        options: ["24 soal", "26 soal", "27 soal", "28 soal"],
+        correctIndex: 1,
+        explanation: "Misal Benar=B, Salah=S. B+S=28 -> S=28-B. Skor = 4B - 2S = 100 => 4B - 2(28-B) = 100 => 6B - 56 = 100 => 6B = 156 => B = 26 soal."
+      }
+    ];
+
+    // STATE GIM
+    let player = { name: "", class: "6", absent: 1 };
+    let currentIndex = 0;
+    let score = 0;
+    let streak = 0;
+    let userAnswers = new Array(questionsData.length).fill(null);
+
+    // DOM ELEMENTS
+    const screenRegister = document.getElementById("screen-register");
+    const screenQuiz = document.getElementById("screen-quiz");
+    const screenResult = document.getElementById("screen-result");
+    const headerStats = document.getElementById("header-stats");
+
+    function startGame(e) {
+      e.preventDefault();
+      player.name = document.getElementById("input-name").value.trim();
+      player.class = document.getElementById("input-class").value;
+      player.absent = document.getElementById("input-absent").value;
+
+      document.getElementById("player-display").innerText = player.name;
+      headerStats.classList.remove("hidden");
+
+      screenRegister.classList.add("hidden");
+      screenQuiz.classList.remove("hidden");
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questionsData[currentIndex];
+      
+      // Update Progress
+      document.getElementById("progress-text").innerText = `${currentIndex + 1} / ${questionsData.length}`;
+      document.getElementById("progress-bar").style.width = `${((currentIndex + 1) / questionsData.length) * 100}%`;
+      document.getElementById("streak-badge").innerText = `Streak: ${streak} 🔥`;
+
+      // Render Category & Stimulus
+      document.getElementById("q-category").innerText = q.category;
+      document.getElementById("q-stimulus").innerText = `${q.id}. ${q.stimulus}`;
+
+      // Render Options
+      const container = document.getElementById("options-container");
+      container.innerHTML = "";
+
+      const currentAns = userAnswers[currentIndex];
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = `w-full text-left p-4 rounded-xl border text-sm md:text-base font-medium transition flex items-start space-x-3 `;
+
+        if (currentAns === null) {
+          btn.className += "bg-slate-900/80 border-slate-700 hover:border-indigo-500 hover:bg-slate-700/50 text-slate-200";
+        } else {
+          if (idx === q.correctIndex) {
+            btn.className += "bg-emerald-950/80 border-emerald-500 text-emerald-200 font-semibold";
+          } else if (idx === currentAns) {
+            btn.className += "bg-rose-950/80 border-rose-500 text-rose-200 font-semibold";
+          } else {
+            btn.className += "bg-slate-900/40 border-slate-800 text-slate-500 opacity-60";
+          }
+        }
+
+        btn.disabled = currentAns !== null;
+        btn.onclick = () => handleAnswer(idx);
+
+        const prefix = String.fromCharCode(65 + idx);
+        btn.innerHTML = `<span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs border border-slate-700">${prefix}</span><span>${opt}</span>`;
+        container.appendChild(btn);
+      });
+
+      // Feedback Box
+      const feedbackBox = document.getElementById("feedback-box");
+      if (currentAns !== null) {
+        feedbackBox.classList.remove("hidden");
+        const isCorrect = currentAns === q.correctIndex;
+        
+        feedbackBox.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-rose-950/40 border-rose-500/40 text-rose-300'}`;
+        document.getElementById("feedback-title").innerHTML = isCorrect 
+          ? `<span>✅ Jawaban Benar!</span>` 
+          : `<span>❌ Jawaban Kurang Tepat</span>`;
+        
+        document.getElementById("feedback-explanation").innerText = q.explanation;
+      } else {
+        feedbackBox.classList.add("hidden");
+      }
+
+      // Nav Buttons
+      document.getElementById("btn-prev").style.display = currentIndex > 0 ? "block" : "none";
+      
+      const isLast = currentIndex === questionsData.length - 1;
+      document.getElementById("btn-next").style.display = (!isLast && currentAns !== null) ? "block" : "none";
+      document.getElementById("btn-finish").style.display = (isLast && currentAns !== null) ? "block" : "none";
+    }
+
+    function handleAnswer(selectedIndex) {
+      const q = questionsData[currentIndex];
+      userAnswers[currentIndex] = selectedIndex;
+
+      if (selectedIndex === q.correctIndex) {
+        score += 10;
+        streak++;
+      } else {
+        streak = 0;
+      }
+
+      document.getElementById("score-display").innerText = score;
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questionsData.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    }
+
+    function finishQuiz() {
+      screenQuiz.classList.add("hidden");
+      screenResult.classList.remove("hidden");
+
+      let correctCount = 0;
+      userAnswers.forEach((ans, idx) => {
+        if (ans === questionsData[idx].correctIndex) correctCount++;
+      });
+
+      const accuracy = Math.round((correctCount / questionsData.length) * 100);
+      
+      document.getElementById("result-score").innerText = `${accuracy} / 100`;
+      document.getElementById("summary-correct").innerText = correctCount;
+      document.getElementById("summary-wrong").innerText = questionsData.length - correctCount;
+      document.getElementById("summary-accuracy").innerText = `${accuracy}%`;
+
+      let stars = "⭐";
+      let status = "Coba latihan lagi ya!";
+      if (accuracy >= 85) {
+        stars = "⭐⭐⭐";
+        status = "Luar Biasa! Kamu Sangat Siap TKA Matematika! 🎉";
+      } else if (accuracy >= 60) {
+        stars = "⭐⭐";
+        status = "Bagus! Teruskan berlatih untuk hasil sempurna. 👍";
+      }
+
+      document.getElementById("result-stars").innerText = stars;
+      document.getElementById("result-status").innerText = status;
+
+      renderReviewList();
+    }
+
+    function toggleReview() {
+      const container = document.getElementById("review-container");
+      container.classList.toggle("hidden");
+    }
+
+    function renderReviewList() {
+      const list = document.getElementById("review-list");
+      list.innerHTML = "";
+
+      questionsData.forEach((q, idx) => {
+        const userAns = userAnswers[idx];
+        const isCorrect = userAns === q.correctIndex;
+
+        const card = document.createElement("div");
+        card.className = `p-4 rounded-xl border text-sm space-y-2 ${isCorrect ? 'bg-slate-800/80 border-emerald-500/50' : 'bg-slate-800/80 border-rose-500/50'}`;
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start font-semibold">
+            <span class="text-indigo-300">Soal #${q.id} (${q.category})</span>
+            <span class="${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">${isCorrect ? 'BENAR ✅' : 'SALAH ❌'}</span>
+          </div>
+          <p class="text-slate-200">${q.stimulus}</p>
+          <div class="text-xs space-y-1 bg-slate-900/60 p-3 rounded-lg border border-slate-700">
+            <p><span class="text-slate-400">Jawabanmu:</span> <strong class="${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">${userAns !== null ? q.options[userAns] : 'Tidak Dijawab'}</strong></p>
+            <p><span class="text-slate-400">Kunci Jawaban:</span> <strong class="text-emerald-400">${q.options[q.correctIndex]}</strong></p>
+            <p class="text-slate-300 pt-1 border-t border-slate-700/60 mt-1"><span class="text-slate-400">Pembahasan:</span> ${q.explanation}</p>
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+    }
+
+    function restartGame() {
+      currentIndex = 0;
+      score = 0;
+      streak = 0;
+      userAnswers = new Array(questionsData.length).fill(null);
+
+      document.getElementById("score-display").innerText = "0";
+      screenResult.classList.add("hidden");
+      document.getElementById("review-container").classList.add("hidden");
+      screenQuiz.classList.remove("hidden");
+
+      renderQuestion();
+    }
+  </script>
+</body>
+</html>
